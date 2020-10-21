@@ -73,6 +73,7 @@ interface IUnit extends ISolidEntity {
 	fireTarget: PositionVector | null;
 	selected: boolean;
 	team: Team;
+	pos: PositionVector;
 	selectedBy(point: Vector | [RawVector, RawVector]): boolean;
 	pointInside(point: Vector): boolean;
 	registerHit(impact: PositionVector, trajectory: DirectionVector): void;

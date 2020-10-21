@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { NextPage } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import styles from '../sass/Index.module.scss';
@@ -12,7 +13,7 @@ const Index: NextPage = () => {
 	const router = useRouter();
 
 	useEffect(() => {
-		axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/wakeup`);
+		axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/wakeup`).catch(() => {});
 	}, []);
 
 	return (
@@ -45,19 +46,24 @@ const Index: NextPage = () => {
 							id="num-walls"
 						/>
 					</div>
-					<div className={styles.col}></div>
-					<button
-						className={styles.btn}
-						onClick={() => {
-							axios
-								.post<{ id: string }>(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/games`, { tankCount, wallCount })
-								.then((res) => {
-									router.push('/[gameId]', '/' + res.data.id);
-								});
-						}}>
-						Go
-					</button>
+					<div className={styles.btnGroup}>
+						<button
+							className={styles.btn}
+							onClick={() => {
+								axios
+									.post<{ id: string }>(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/games`, { tankCount, wallCount })
+									.then((res) => {
+										router.push('/[gameId]', '/' + res.data.id);
+									});
+							}}>
+							Multiplayer
+						</button>
+						<Link href={`/singleplayer?tanks=${tankCount}&walls=${wallCount}`}>
+							<a className={styles.btn}>Singleplayer</a>
+						</Link>
+					</div>
 				</div>
+				<div className={styles.col}></div>
 			</div>
 			<Head>
 				<style>{`

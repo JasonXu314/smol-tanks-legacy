@@ -76,7 +76,7 @@ const Room: NextPage = () => {
 	return (
 		<div className={styles.main} ref={screenRef}>
 			{!gameStarted && <h1>Waiting on other player...</h1>}
-			{gameStarted && <Canvas entities={entities} gameId={gameId} height={height} width={width} socket={socket!} myTeam={team!} />}
+			{gameStarted && <Canvas entities={entities} gameId={gameId} height={height} width={width} socket={socket!} myTeam={team!} multiplayer />}
 			<Head>
 				<style>{`
 					* {

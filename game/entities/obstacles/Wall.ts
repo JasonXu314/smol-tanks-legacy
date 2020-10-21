@@ -1,6 +1,6 @@
 import { Segment } from '@/math/lines';
 import { PositionVector } from '@/math/vectors';
-import { line } from '../../utils/utils';
+import { line } from '../../../utils/utils';
 
 export default class Wall implements IEntity {
 	public type: EntityType = 'wall';

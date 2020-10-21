@@ -1,4 +1,4 @@
-import Wall from 'entities/obstacles/Wall';
+import Wall from 'game/entities/obstacles/Wall';
 import { DirectionVector, PositionVector } from './math/vectors';
 
 export function degToRad(deg: number): number {

@@ -42,17 +42,24 @@
 			}
 		}
 
-		.btn {
-			padding: 0.5em 1em;
-			font-family: inherit;
-			color: #dbc904;
-			background: #132912;
-			border: 2px solid #dbc904;
-			border-radius: 8px;
+		.btnGroup {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
 
-			&:hover {
-				background: #244d21;
-				cursor: pointer;
+			.btn {
+				padding: 0.5em 1em;
+				font-family: inherit;
+				color: #dbc904;
+				background: #132912;
+				border: 2px solid #dbc904;
+				border-radius: 8px;
+				text-decoration: none;
+				display: block;
+
+				&:hover {
+					background: #244d21;
+					cursor: pointer;
+				}
 			}
 		}
 	}

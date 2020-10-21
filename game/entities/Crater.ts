@@ -1,6 +1,6 @@
 import { PositionVector } from '@/math/vectors';
 import { circle } from '@/utils';
-import Game from './Game';
+import Game from '../Game';
 
 export default class Crater implements IEntity {
 	public type: EntityType = 'crater';

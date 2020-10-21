@@ -1,4 +1,4 @@
-import { circle } from '../../utils/utils';
+import { circle } from '../../../utils/utils';
 
 export default class Tree implements IEntity {
 	public type: EntityType = 'tree';

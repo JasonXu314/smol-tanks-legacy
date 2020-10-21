@@ -1,7 +1,7 @@
 import { Ray, Segment } from '@/math/lines';
 import { DirectionVector, PositionVector, Vector } from '@/math/vectors';
-import { draw, is, line, PointCollection, rotate } from 'utils/utils';
-import Game from './Game';
+import { circle, draw, is, line, PointCollection, rotate } from 'utils/utils';
+import Game from '../Game';
 import Shell from './Shell';
 
 const templates: Record<'chassis' | 'barrel' | 'turret' | 'flag', RawVector[]> = {
@@ -40,7 +40,7 @@ const templates: Record<'chassis' | 'barrel' | 'turret' | 'flag', RawVector[]> =
 const tankSpeed = 2;
 const rotateSpeed = 2;
 const tankRange = 400;
-const muzzleVelocity = 50;
+const muzzleVelocity = 32;
 const reloadTime = 7500;
 const gunError = 1;
 
@@ -49,13 +49,14 @@ export default class Tank implements IUnit {
 	public moveTarget: PositionVector | null = null;
 	public fireTarget: PositionVector | null = null;
 	public selected: boolean = false;
+	public pos: PositionVector;
 	// private left: DirectionVector;
 	// private right: DirectionVector;
 	private damaged: boolean = false;
 	private dir: DirectionVector;
-	private pos: PositionVector;
 	private lastFireTime: number = Date.now();
 	private cooldown: number = 0;
+	private hitPos: RawVector | null = null;
 
 	constructor(pos: RawVector, dir: RawVector, private ctx: CanvasRenderingContext2D, private game: Game, public team: Team, public readonly id: string) {
 		this.dir = new DirectionVector(...dir);
@@ -69,6 +70,7 @@ export default class Tank implements IUnit {
 			const [tx, ty] = this.fireTarget;
 			const [x, y] = this.pos;
 
+			// Attacking Line
 			line(
 				this.ctx,
 				new PointCollection([
@@ -85,6 +87,7 @@ export default class Tank implements IUnit {
 			const [tx, ty] = this.moveTarget;
 			const [x, y] = this.pos;
 
+			// Movement Line
 			line(
 				this.ctx,
 				new PointCollection([
@@ -98,12 +101,14 @@ export default class Tank implements IUnit {
 			);
 		}
 
+		// Chassis
 		draw(
 			this.ctx,
 			new PointCollection(templates.chassis).rotate(this.dir).translate(this.pos).map(this.game.gameToCanvas.bind(this.game)).points,
 			'#186606'
 		);
 		if (this.selected) {
+			// Outline
 			line(
 				this.ctx,
 				new PointCollection(templates.chassis).rotate(this.dir).translate(this.pos).map(this.game.gameToCanvas.bind(this.game)).points,
@@ -113,17 +118,25 @@ export default class Tank implements IUnit {
 				true
 			);
 		}
+		// Barrel first, so drawn over by turret
 		draw(
 			this.ctx,
 			new PointCollection(templates.barrel).rotate(this.dir).translate(this.pos).map(this.game.gameToCanvas.bind(this.game)).points,
 			'#0e4002'
 		);
+		// Turret
 		draw(
 			this.ctx,
 			new PointCollection(templates.turret).rotate(this.dir).translate(this.pos).map(this.game.gameToCanvas.bind(this.game)).points,
 			'#1c8503'
 		);
+		// Team indicator
 		draw(this.ctx, new PointCollection(templates.flag).rotate(this.dir).translate(this.pos).map(this.game.gameToCanvas.bind(this.game)).points, this.team);
+		if (this.damaged) {
+			// Damage Indicator
+			const [x, y] = new PointCollection([this.hitPos!]).rotate(this.dir).translate(this.pos).map(this.game.gameToCanvas.bind(this.game)).points[0];
+			circle(this.ctx, x, y, 2.5 / this.game.zoom, 'black');
+		}
 	}
 
 	public update(): void {
@@ -265,15 +278,12 @@ export default class Tank implements IUnit {
 	public selectedBy(selection: Vector | [RawVector, RawVector]): boolean {
 		if (is<Vector>(selection, 'vector')) {
 			const m = selection;
-			const a = rotate(new PositionVector(...templates.chassis[0]), this.dir)
-				.add(new DirectionVector(this.pos.x, this.pos.y))
-				.asVector();
-			const b = rotate(new PositionVector(...templates.chassis[1]), this.dir)
-				.add(new DirectionVector(this.pos.x, this.pos.y))
-				.asVector();
-			const d = rotate(new PositionVector(...templates.chassis[3]), this.dir)
-				.add(new DirectionVector(this.pos.x, this.pos.y))
-				.asVector();
+			const [ra, rb, rd] = new PointCollection([templates.chassis[0], templates.chassis[1], templates.chassis[3]])
+				.rotate(this.dir)
+				.translate(this.pos).points;
+			const a = new Vector(...ra);
+			const b = new Vector(...rb);
+			const d = new Vector(...rd);
 
 			const am = m.subtract(a);
 			const ab = b.subtract(a);
@@ -321,6 +331,7 @@ export default class Tank implements IUnit {
 				this.game.destroyUnit(this);
 			} else {
 				this.damaged = true;
+				this.hitPos = rotate(PositionVector.ORIGIN.add(impact.vectorTo(this.pos)), this.dir).raw;
 			}
 		}
 	}

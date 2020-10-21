@@ -1,7 +1,7 @@
 import { DirectionVector, PositionVector } from '@/math/vectors';
+import { generate as uuid } from 'short-uuid';
 import { draw, rotate } from 'utils/utils';
-import { v4 as uuid } from 'uuid';
-import Game from './Game';
+import Game from '../Game';
 
 const template: RawVector[] = [
 	[3, 2],
